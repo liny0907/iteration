@@ -96,8 +96,8 @@ z_scores = function(x) {
   
   if (!is.numeric(x)) {
     stop("Argument x should be numeric")
-  } else if (length(x) == 1) {
-    stop("Z scores cannot be computed for length 1 vectors")
+  } else if (length(x) < 3) {
+    stop("X should have at least 3 numbers")
   }
   
   z = mean(x) / sd(x)
@@ -110,7 +110,7 @@ z_scores = function(x) {
 z_scores(3)
 ```
 
-    ## Error in z_scores(3): Z scores cannot be computed for length 1 vectors
+    ## Error in z_scores(3): X should have at least 3 numbers
 
 ``` r
 z_scores(c("my", "name", "is", "jeff"))
@@ -123,3 +123,30 @@ z_scores(mtcars)
 ```
 
     ## Error in z_scores(mtcars): Argument x should be numeric
+
+``` r
+mean_and_sd = function(x) {
+  if (!is.numeric(x)) {
+    stop("Argument x should be numeric")
+  } else if (length(x) < 3) {
+    stop("X should have at least 3 numbers")
+  }
+  
+  mean_x = mean(x)
+  sd_x = sd(x)
+
+  output_df = 
+    tibble(
+    mean = mean_x, 
+    sd = sd_x
+  )
+  return(output_df)
+}
+
+mean_and_sd(x_vec)
+```
+
+    ## # A tibble: 1 × 2
+    ##    mean    sd
+    ##   <dbl> <dbl>
+    ## 1  5.67  3.80
