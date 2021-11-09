@@ -145,6 +145,9 @@ weather_nest
 
 weather_nest %>% pull(data)
 
+unnest(weather_nest, cols = data)
+
+
 ```
 
 
@@ -166,6 +169,57 @@ weather_nest =
 weather_nest
 
 ```
+
+## Napoleon!!
+
+```{r}
+read_page_reviews = function(url) {
+  
+  html = read_html(url)
+  
+  title = 
+    html %>%
+    html_nodes("#cm_cr-review_list .review-title") %>%
+    html_text()
+  
+  stars = 
+    html %>%
+    html_nodes("#cm_cr-review_list .review-rating") %>%
+    html_text() %>%
+    str_extract("\\d") %>%
+    as.numeric()
+  
+  text = 
+    html %>%
+    html_nodes(".review-data:nth-child(5)") %>%
+    html_text()
+  
+  tibble(title, stars, text)
+}
+
+url_base = "https://www.amazon.com/product-reviews/B00005JNBQ/ref=cm_cr_arp_d_viewopt_rvwer?ie=UTF8&reviewerType=avp_only_reviews&sortBy=recent&pageNumber="
+vec_urls = str_c(url_base, 1:5)
+
+dynamite_reviews = 
+  tibble(
+    page = 1:5,
+    urls = str_c(url_base, page)) %>% 
+  mutate(reviews = map(urls, read_page_reviews)) %>% 
+  unnest()
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
