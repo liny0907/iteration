@@ -85,3 +85,87 @@ for (i in 1:4) {
 ```
 
 
+## Let's use map instead ...
+
+```{r}
+output = map(list_norms, mean_and_sd)
+output = map(list_norms, median)
+output = map_dbl(list_norms, median)
+```
+
+## LIST COLUMNS !!!!
+
+```{r}
+listcol_df = 
+  tibble(
+    name = c("a", "b", "c", "d"),
+    samp = list_norms
+  ) 
+
+listcol_df %>% pull(name)
+listcol_df %>% pull(samp)
+
+summaries = map(listcol_df$samp, mean_and_sd)
+
+listcol_df = 
+  listcol_df %>% 
+  mutate(summary = map(samp, mean_and_sd))
+
+listcol_df
+```
+
+
+## Nested data
+
+```{r}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728", "USC00519397", "USS0023B17S"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2017-01-01",
+    date_max = "2017-12-31") %>%
+  mutate(
+    name = recode(
+      id, 
+      USW00094728 = "CentralPark_NY", 
+      USC00519397 = "Waikiki_HA",
+      USS0023B17S = "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) %>%
+  select(name, id, everything())
+```
+
+
+nest data within location
+```{r}
+weather_nest = 
+  nest(weather_df, data = date:tmin)
+
+weather_nest
+
+weather_nest %>% pull(data)
+
+```
+
+
+```{r}
+lm(tmax ~ tmin, data = weather_nest$data[[1]])
+
+weather_lm = function(df) {
+  lm(tmax ~ tmin, data = df)
+}
+
+weather_lm(weather_nest$data[[1]])
+
+map(weather_nest$data, weather_lm)
+
+weather_nest = 
+  weather_nest %>% 
+  mutate(models = map(data, weather_lm))
+
+weather_nest
+
+```
+
+
+
