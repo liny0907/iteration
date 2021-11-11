@@ -91,6 +91,8 @@ for (i in 1:4) {
 output = map(list_norms, mean_and_sd)
 output = map(list_norms, median)
 output = map_dbl(list_norms, median)
+
+output = map_dbl(list_norms, median, .id = "input")
 ```
 
 ## LIST COLUMNS !!!!
@@ -199,6 +201,21 @@ read_page_reviews = function(url) {
 
 url_base = "https://www.amazon.com/product-reviews/B00005JNBQ/ref=cm_cr_arp_d_viewopt_rvwer?ie=UTF8&reviewerType=avp_only_reviews&sortBy=recent&pageNumber="
 vec_urls = str_c(url_base, 1:5)
+
+output = vector("list", 5)
+
+for (i in 1:5) {
+  output[[i]] = read_page_reviews(vec_urls[[i]])
+}
+
+output = vector("list", 5)
+
+for (i in 1:5) {
+  output[[i]] = read_page_reviews(vec_urls[[i]])
+}
+
+dynamite_reviews = bind_rows(output)
+
 
 dynamite_reviews = 
   tibble(
