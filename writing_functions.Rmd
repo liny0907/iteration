@@ -44,6 +44,8 @@ z_scores(x_vec)
 
 y_vec = rnorm(40, mean = 12, sd = 0.3)
 z_scores(y_vec)
+
+z_scores(sample(c(TRUE, FALSE), 25, replace = TRUE))
 ```
 
 How great is this?
@@ -129,6 +131,7 @@ sim_mean_sd = function(n, mu = 2, sigma = 3) {
 
 sim_mean_sd(30)
 sim_mean_sd(300)
+sim_mean_sd(3000)
 ```
 
 
@@ -202,5 +205,7 @@ y = 2
 
 f(x = y)
 ```
+
+
 
 

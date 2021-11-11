@@ -1,4 +1,4 @@
-Iteration and List Columns
+Wrting Functions
 ================
 
 ``` r
@@ -47,67 +47,267 @@ scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
-## Define function
+## Z scores
 
 ``` r
-mean_and_sd = function(x) {
+x_vec = rnorm(25, mean = 5, sd = 4)
+
+(x_vec - mean(x_vec)) / sd(x_vec)
+```
+
+    ##  [1] -0.83687228  0.01576465 -1.05703126  1.50152998  0.16928872 -1.04107494
+    ##  [7]  0.33550276  0.59957343  0.42849461 -0.49894708  1.41364561  0.23279252
+    ## [13] -0.83138529 -2.50852027  1.00648110 -0.22481531 -0.19456260  0.81587675
+    ## [19]  0.68682298  0.44756609  0.78971253  0.64568566 -0.09904161 -2.27133861
+    ## [25]  0.47485186
+
+``` r
+z_scores = function(x) {
+  
+  z = (x - mean(x)) / sd(x)
+  return(z)
+}
+z_scores(x_vec)
+```
+
+    ##  [1] -0.83687228  0.01576465 -1.05703126  1.50152998  0.16928872 -1.04107494
+    ##  [7]  0.33550276  0.59957343  0.42849461 -0.49894708  1.41364561  0.23279252
+    ## [13] -0.83138529 -2.50852027  1.00648110 -0.22481531 -0.19456260  0.81587675
+    ## [19]  0.68682298  0.44756609  0.78971253  0.64568566 -0.09904161 -2.27133861
+    ## [25]  0.47485186
+
+``` r
+y_vec = rnorm(40, mean = 12, sd = 0.3)
+z_scores(y_vec)
+```
+
+    ##  [1] -0.2022306 -0.3204049 -1.8795425 -0.7026191  0.3598721  1.4753003
+    ##  [7] -0.2575539  0.3239812 -0.1994754 -1.7684514 -0.6277359 -0.6031866
+    ## [13] -0.2060066  1.1686154  0.7692145 -0.3307538 -0.4360887  0.6907069
+    ## [19]  0.5243537 -0.9523331 -0.9745524  0.2966039  0.7755665 -0.2688873
+    ## [25]  0.9090459  0.3363531 -0.8613556  0.2687848 -1.4747590  1.5634498
+    ## [31]  2.2124710 -0.5710916 -1.3737041  0.5398346 -0.2958126  2.7119068
+    ## [37] -0.1822057  0.6821414 -0.1024770 -1.0169742
+
+``` r
+z_scores(sample(c(TRUE, FALSE), 25, replace = TRUE))
+```
+
+    ##  [1]  0.8684962  0.8684962 -1.1053588  0.8684962 -1.1053588  0.8684962
+    ##  [7] -1.1053588 -1.1053588 -1.1053588  0.8684962 -1.1053588  0.8684962
+    ## [13]  0.8684962 -1.1053588  0.8684962 -1.1053588 -1.1053588 -1.1053588
+    ## [19]  0.8684962  0.8684962 -1.1053588  0.8684962  0.8684962  0.8684962
+    ## [25]  0.8684962
+
+How great is this? only kind of great Let’s try again
+
+``` r
+z_scores = function(x) {
   
   if (!is.numeric(x)) {
     stop("Argument x should be numeric")
-  } else if (length(x) == 1) {
-    stop("Cannot be computed for length 1 vectors")
+  } else if (length(x) < 3) {
+    stop("X should have at least 3 numbers")
+  }
+  
+  z = mean(x) / sd(x)
+  
+  z
+}
+```
+
+``` r
+z_scores(3)
+```
+
+    ## Error in z_scores(3): X should have at least 3 numbers
+
+``` r
+z_scores(c("my", "name", "is", "jeff"))
+```
+
+    ## Error in z_scores(c("my", "name", "is", "jeff")): Argument x should be numeric
+
+``` r
+z_scores(mtcars)
+```
+
+    ## Error in z_scores(mtcars): Argument x should be numeric
+
+``` r
+mean_and_sd = function(x) {
+  if (!is.numeric(x)) {
+    stop("Argument x should be numeric")
+  } else if (length(x) < 3) {
+    stop("X should have at least 3 numbers")
   }
   
   mean_x = mean(x)
   sd_x = sd(x)
 
-  tibble(
+  output_df = 
+    tibble(
     mean = mean_x, 
     sd = sd_x
   )
+  return(output_df)
 }
-```
 
-## lists
-
-``` r
-l = list(
-  vec_numeric = 5:8,
-  mat         = matrix(1:8, 2, 4),
-  vec_logical = c(TRUE, FALSE),
-  summary     = summary(rnorm(1000, mean = 5, sd = 3)))
-l[[1]]
-```
-
-    ## [1] 5 6 7 8
-
-## List of normals
-
-``` r
-list_norms = 
-  list(
-    a = rnorm(20, 3, 1),
-    b = rnorm(20, 0, 5),
-    c = rnorm(20, 10, .2),
-    d = rnorm(20, -3, 1)
-  )
-
-mean_and_sd(list_norms[[1]])
+mean_and_sd(x_vec)
 ```
 
     ## # A tibble: 1 × 2
     ##    mean    sd
     ##   <dbl> <dbl>
-    ## 1  2.70  1.12
+    ## 1  5.67  3.80
 
-## for loops
-
-Let’s use a for loop to iterate over my list of normals.
+## different sample sizes, means, sds
 
 ``` r
-output = vector("list", length = 4)
+sim_data = tibble(
+  x = rnorm(30, mean = 2, sd = 3)
+)
 
-for (i in 1:4) {
-  output[[i]] = mean_and_sd(list_norms[[i]])
+sim_data %>% 
+  summarize(
+    mu_hat = mean(x),
+    sigma_hat = sd(x)
+  )
+```
+
+    ## # A tibble: 1 × 2
+    ##   mu_hat sigma_hat
+    ##    <dbl>     <dbl>
+    ## 1   2.23      2.69
+
+Let’s write a function that simulates data, computes the mean and sd.
+
+``` r
+sim_mean_sd = function(n, mu = 2, sigma = 3) {
+  
+  sim_data = tibble(
+    x = rnorm(n, mean = mu, sd = sigma),
+  )
+  
+  sim_data %>% 
+    summarize(
+      mu_hat = mean(x),
+      sigma_hat = sd(x)
+    )
+}
+
+sim_mean_sd(30)
+```
+
+    ## # A tibble: 1 × 2
+    ##   mu_hat sigma_hat
+    ##    <dbl>     <dbl>
+    ## 1   1.67      2.88
+
+``` r
+sim_mean_sd(300)
+```
+
+    ## # A tibble: 1 × 2
+    ##   mu_hat sigma_hat
+    ##    <dbl>     <dbl>
+    ## 1   2.09      3.01
+
+``` r
+sim_mean_sd(3000)
+```
+
+    ## # A tibble: 1 × 2
+    ##   mu_hat sigma_hat
+    ##    <dbl>     <dbl>
+    ## 1   2.01      2.97
+
+## Napoleon Dynamite
+
+``` r
+read_page_reviews <- function(url) {
+  
+  html = read_html(url)
+  
+  review_titles = 
+    html %>%
+    html_nodes(".a-text-bold span") %>%
+    html_text()
+  
+  review_stars = 
+    html %>%
+    html_nodes("#cm_cr-review_list .review-rating") %>%
+    html_text() %>%
+    str_extract("^\\d") %>%
+    as.numeric()
+  
+  review_text = 
+    html %>%
+    html_nodes(".review-text-content span") %>%
+    html_text() %>% 
+    str_replace_all("\n", "") %>% 
+    str_trim()
+  
+  tibble(
+    title = review_titles,
+    stars = review_stars,
+    text = review_text
+  )
 }
 ```
+
+``` r
+url_base = "https://www.amazon.com/product-reviews/B00005JNBQ/ref=cm_cr_arp_d_viewopt_rvwer?ie=UTF8&reviewerType=avp_only_reviews&sortBy=recent&pageNumber="
+vec_urls = str_c(url_base, 1:5)
+
+dynamite_reviews = bind_rows(
+  read_page_reviews(vec_urls[1]),
+  read_page_reviews(vec_urls[2]),
+  read_page_reviews(vec_urls[3]),
+  read_page_reviews(vec_urls[4]),
+  read_page_reviews(vec_urls[5])
+)
+
+dynamite_reviews
+```
+
+    ## # A tibble: 50 × 3
+    ##    title                                                 stars text             
+    ##    <chr>                                                 <dbl> <chr>            
+    ##  1 it was                                                    5 "mad good yo"    
+    ##  2 Fun!                                                      4 "Fun and enterta…
+    ##  3 Vintage                                                   5 "Easy to order. …
+    ##  4 too many commercials                                      1 "5 minutes into …
+    ##  5 this film is so good!                                     5 "VOTE FOR PEDRO!"
+    ##  6 Good movie                                                5 "Weird story, go…
+    ##  7 I Just everyone to know this....                          5 "VOTE FOR PEDRO …
+    ##  8 the cobweb in his hair during the bike ramp scene lol     5 "5 stars for bei…
+    ##  9 Best quirky movie ever                                    5 "You all know th…
+    ## 10 Classic Film                                              5 "Had to order th…
+    ## # … with 40 more rows
+
+``` r
+x_vec = rnorm(25, 0, 1)
+
+my_summary = function(x, summ_func) {
+  summ_func(x)
+}
+
+my_summary(x_vec, sd)
+```
+
+    ## [1] 1.058065
+
+``` r
+f = function(x) {
+  z = x + y
+  z
+}
+
+x = 1
+y = 2
+
+f(x = y)
+```
+
+    ## [1] 4
